@@ -28,5 +28,3 @@ Con el fin de hacer el ejercicio más divertido, el programa base propuesto, tam
 3. Desarrolle una primera versión paralela dividiendo el trabajo entre solo 2 hilos, verifique que el código siguee funcionando correctamente (comparando el resultado con una cversión secuencial) y luego verifique que el tiempo de ejecución disminuye en la versión paralela.
 4. Implemente un versión paralela que distribuya el trabajo de manera automática para un número n de hilos. Se realizarán pruebas para n = 1, 2, 4, y 8 hilos.
 5. Desarrolle un informe donde evalue el desempeño su versión paralela, tomando el tiempo de ejecución del programa utilizando varios hilos, y desarrollando varias repeticiones (mínimo 10 por caso), grafique los resultados y analice las gráficas.
-
-Fecha de entrega: Jueves 10 de Diciembre de 2020

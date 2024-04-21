@@ -1,4 +1,4 @@
-# SO-Lab3-20201: Paralelización de la función SAXPY.
+# SO-Lab3-20241: Paralelización de la función SAXPY.
 
 # Objetivos
 Paralelizar el código presentado haciendo uso de hilos con la librería pthreads.
@@ -38,6 +38,6 @@ make DEBUG=0
 # Pasos sugeridos para el desarrollo del laboratorio
 1. Clone este repositorio, compile y ejecute el código, trate de entenderlo, no es difícil.
 2. Defina una estrategia para el desarrollo de la versión paralela: ¿Cuál es la mejor forma de dividir el trabajo entre los hilos disponibles?
-3. Desarrolle una primera versión paralela dividiendo el trabajo entre solo 2 hilos, verifique que el código siguee funcionando correctamente (comparando el resultado con una versión secuencial) y luego verifique que el tiempo de ejecución disminuye en la versión paralela.
-4. Implemente un versión paralela que distribuya el trabajo de manera automática para un número n de hilos. Se realizarán pruebas para n = 1, 2, 4, y 8 hilos.
-5. Desarrolle un informe donde evalue el desempeño su versión paralela, tomando el tiempo de ejecución del programa utilizando varios hilos, y desarrollando varias repeticiones (mínimo 10 por caso), grafique los resultados y analice las gráficas.
+3. Desarrolle una primera versión paralela dividiendo el trabajo entre solo 2 hilos, verifique que el código sigue funcionando correctamente (comparando el resultado con una versión secuencial) y luego verifique que el tiempo de ejecución disminuye en la versión paralela.
+4. Implemente un versión paralela que distribuya el trabajo de manera automática para un número *n* de hilos. Se realizarán pruebas para n = 1, 2, 4, y 8 hilos.
+5. Desarrolle un informe dónde evalúe el desempeño su versión paralela, tomando el tiempo de ejecución del programa utilizando varios hilos, y desarrollando varias repeticiones (mínimo 10 por caso). Grafique los resultados y analice las gráficas.

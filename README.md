@@ -23,12 +23,6 @@ para un número máximo de iteraciones max_iters haga:
 fin
 ```
 
->```
->para un número máximo de iteraciones max_iters haga: 
->    Y = a * X + Y 
->fin
-> ```
-
 Con el fin de hacer el ejercicio más divertido, el programa base propuesto, también calcula los valores promedio de cada iteración de Y. 
 
 ## Compilación y ejecución

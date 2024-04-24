@@ -59,7 +59,7 @@ int main(int argc, char* argv[]){
 			printf("option -%c needs a value\n", optopt);  
 			break;  
 			case '?':  
-			fprintf(stderr, "Usage: %s [-p <vector size>] [-s <seed>] [-n <threads number>]\n", argv[0]);
+			fprintf(stderr, "Usage: %s [-p <vector size>] [-s <seed>] [-n <threads number>] [-i <maximum itertions>]\n", argv[0]);
 			exit(EXIT_FAILURE);
 		}  
 	}  

@@ -55,6 +55,7 @@ make DEBUG=0
 
 ## Recursos adicionales
 
-A continuación, se detallan algunos enlaces con material del texto guia que puede ser de utilidad para el desarrollo de la practica:
+A continuación, se detallan algunos enlaces con material de utilidad para el desarrollo de la practica:
 1. **Laboratory: Tutorial** [[doc]](https://pages.cs.wisc.edu/~remzi/OSTEP/lab-tutorial.pdf)
 2. **Interlude: Thread API** [[doc]](https://pages.cs.wisc.edu/~remzi/OSTEP/threads-api.pdf) | [[code]](examples_ostep/threads-api/)
+3. **Recusos adicionales** [[doc]](resources/)

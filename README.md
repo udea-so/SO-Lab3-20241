@@ -1,14 +1,17 @@
 # SO-Lab3-20241: Paralelización de la función SAXPY.
 
-# Objetivos
-Paralelizar el código presentado haciendo uso de hilos con la librería pthreads.
+## Objetivos
 
-# SAXPY
+> Paralelizar el código presentado haciendo uso de hilos con la librería pthreads.
+
+## SAXPY
+
 La función SAXPY (single-precision A\*X plus Y) es una función básica en el álgebra lineal. Esta función es usada recurrentemente para el desarrollo de métodos numéricos, en el procesamiento de señales, etc.
 
-La función saxpy desarrolla la multiplicación de un valor escalar *a* por un vector **X**, luego el resultado se suma a un vector **Y**, el resultado usualmente es almacenado nuevamente en el vector **Y**, de esta manera la formulación es la siguiente:
+La función saxpy desarrolla la multiplicación de un valor escalar $a$ por un vector $\mathbf{\vec{X}}$, luego el resultado se suma a un vector $\mathbf{\vec{Y}}$, el resultado usualmente es almacenado nuevamente en el vector $\mathbf{\vec{Y}}$, de esta manera la formulación es la siguiente:
 
-**Y** = a \* **X** + **Y** 
+> $$ \mathbf{\vec{Y}} = a*\mathbf{\vec{X}} + \mathbf{\vec{Y}} $$
+
 
 Aunque la función saxpy no es particularmente difícil a nivel computacional, cuando se tiene una gran cantidad de datos a procesar puede ser ser usada como ejemplo para explorar la programación paralela.  
 
@@ -19,24 +22,30 @@ para un número máximo de iteraciones max_iters haga:
     Y = a * X + Y 
 fin
 ```
+
 Con el fin de hacer el ejercicio más divertido, el programa base propuesto, también calcula los valores promedio de cada iteración de Y. 
 
-# Compilación y ejecución
-Modo DEBUG
+## Compilación y ejecución
+
+### Modo DEBUG
+
 ```
 make clean
 make DEBUG=1
 ./saxpy
 ```
-Modo RELEASE
+
+### Modo RELEASE
+
 ```
 make clean
 make DEBUG=0
 ./saxpy
 ```
 
-# Pasos sugeridos para el desarrollo del laboratorio
-1. Clone este repositorio, compile y ejecute el código, trate de entenderlo, no es difícil.
+## Pasos sugeridos para el desarrollo del laboratorio
+
+1. Haga un fork de este repositorio. Luego, trabajando sobre este, compile y ejecute el código, trate de entenderlo, no es difícil.
 2. Defina una estrategia para el desarrollo de la versión paralela: ¿Cuál es la mejor forma de dividir el trabajo entre los hilos disponibles?
 3. Desarrolle una primera versión paralela dividiendo el trabajo entre solo 2 hilos, verifique que el código sigue funcionando correctamente (comparando el resultado con una versión secuencial) y luego verifique que el tiempo de ejecución disminuye en la versión paralela.
 4. Implemente un versión paralela que distribuya el trabajo de manera automática para un número *n* de hilos. Se realizarán pruebas para n = 1, 2, 4, y 8 hilos.

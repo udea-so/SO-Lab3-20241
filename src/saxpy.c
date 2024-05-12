@@ -17,20 +17,62 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <sys/time.h>
+#include <pthread.h>
+#include<stdbool.h>// Booleanos
+#include <math.h>
 
+// Variables to obtain command line parameters
+unsigned int seed = 1;
+int p = 10000000;
+int n_threads = 2;
+int max_iters = 1000;
+// Variables to perform SAXPY operation
+double *X;
+double a;
+double *Y;
+double *Y_avgs;
+int i, it;
+
+
+//-------------------------------------------------------------------
+struct ThreadArgs {
+    bool esPrimeraParte; // Para indicar si es la primera parte de X y Y
+    int limit;   // Indica hasta donde parar de hacer la operacion
+};
+
+
+
+
+//-------------------------------------------------------------------
+void calculate(void *arg) {
+    struct ThreadArgs *args = (struct ThreadArgs *)arg;
+
+	if(p >= 2){
+
+		if(args->esPrimeraParte == true){
+			i = 0;
+		}else{
+			i = args->limit +1;
+			args->limit = p-1;
+		}
+
+		for (i = i; i <= args->limit; i++)
+		{
+			Y[i] = Y[i] + a * X[i];
+			Y_avgs[it] += Y[i];
+		}
+	}else{
+		printf("P < 2\n");
+	}
+}
+
+
+
+
+//-------------------------------------------------------------------
 int main(int argc, char *argv[])
 {
-	// Variables to obtain command line parameters
-	unsigned int seed = 1;
-	int p = 10000000;
-	int n_threads = 2;
-	int max_iters = 1000;
-	// Variables to perform SAXPY operation
-	double *X;
-	double a;
-	double *Y;
-	double *Y_avgs;
-	int i, it;
+
 	// Variables to get execution time
 	struct timeval t_start, t_end;
 	double exec_time;
@@ -76,67 +118,24 @@ int main(int argc, char *argv[])
 	printf("\np = %d, seed = %d, n_threads = %d, max_iters = %d\n",
 		   p, seed, n_threads, max_iters);
 
-	fill_vectors(i, max_iters, p, &X, &Y, &Y_avgs, &a);
 	// initializing data
-	/*X = (double *)malloc(sizeof(double) * p);
-	Y = (double *)malloc(sizeof(double) * p);
-	Y_avgs = (double *)malloc(sizeof(double) * max_iters);
+	fill_vectors();
 
-	for (i = 0; i < p; i++)
-	{
-		X[i] = (double)rand() / RAND_MAX;
-		Y[i] = (double)rand() / RAND_MAX;
-	}
-	for (i = 0; i < max_iters; i++)
-	{
-		Y_avgs[i] = 0.0;
-	}
-	a = (double)rand() / RAND_MAX;*/
 
 #ifdef DEBUG
-	print_vector(i, X, Y, p, a);
-	/*printf("vector X= [ ");
-	for (i = 0; i < p - 1; i++)
-	{
-		printf("%f, ", X[i]);
-	}
-	printf("%f ]\n", X[p - 1]);
+	
+	print_vector(); // Imprime todos los valores
 
-	printf("vector Y= [ ");
-	for (i = 0; i < p - 1; i++)
-	{
-		printf("%f, ", Y[i]);
-	}
-	printf("%f ]\n", Y[p - 1]);
-
-	printf("a= %f \n", a);*/
 #endif
 	/*
 	 *	Function to parallelize
 	 */
 	gettimeofday(&t_start, NULL);
-	funtion_saxpy(it, i, max_iters, p, X, Y, Y_avgs, a);
-	// SAXPY iterative SAXPY mfunction
-	/*for (it = 0; it < max_iters; it++)
-	{
-		for (i = 0; i < p; i++)
-		{
-			Y[i] = Y[i] + a * X[i];
-			Y_avgs[it] += Y[i];
-		}
-		Y_avgs[it] = Y_avgs[it] / p;
-	}*/
+	funtion_saxpy();
 	gettimeofday(&t_end, NULL);
 
 #ifdef DEBUG
-	print_y_final(i, p, Y);
-	/*
-	printf("RES: final vector Y= [ ");
-	for (i = 0; i < p - 1; i++)
-	{
-		printf("%f, ", Y[i]);
-	}
-	printf("%f ]\n", Y[p - 1]);*/
+	print_y_final(); // Imprime el valor final de Y_avgs
 #endif
 
 	// Computing execution time
@@ -147,9 +146,12 @@ int main(int argc, char *argv[])
 	printf("Last 3 values of Y_avgs: %f, %f, %f \n", Y_avgs[max_iters - 3], Y_avgs[max_iters - 2], Y_avgs[max_iters - 1]);
 	return 0;
 }
+//-------------------------------------------------------------------
 
 
-void print_vector(int i, double *X, double *Y, int p, double a)
+
+
+void print_vector()
 {
 	printf("\na= %f \n", a);
 
@@ -169,7 +171,10 @@ void print_vector(int i, double *X, double *Y, int p, double a)
 }
 
 
-void print_y_final(int i, int p, double *Y){
+
+
+//-------------------------------------------------------------------
+void print_y_final(){
 	printf("RES: final vector Y= [ ");
 	for (i = 0; i < p - 1; i++)
 	{
@@ -179,37 +184,56 @@ void print_y_final(int i, int p, double *Y){
 }
 
 
-void funtion_saxpy(int it, int i, int max_iters, int p, double *X, double *Y, double *Y_avgs, double a){
+
+
+//-------------------------------------------------------------------
+void funtion_saxpy(){
 	// SAXPY iterative SAXPY mfunction
+	bool esPrimeraParte = false;
+	pthread_t hilo1, hilo2;
+
 	for (it = 0; it < max_iters; it++)
 	{
-		for (i = 0; i < p; i++)
-		{
-			Y[i] = Y[i] + a * X[i];
-			Y_avgs[it] += Y[i];
-		}
+		int division_entera = floor(p/2); // Mitad de los arreglos X y Y
+
+        struct ThreadArgs *args1 = malloc(sizeof(struct ThreadArgs));
+        args1->esPrimeraParte = true;
+        args1->limit = division_entera;
+
+        struct ThreadArgs *args2 = malloc(sizeof(struct ThreadArgs));
+        args2->esPrimeraParte = false;
+        args2->limit = division_entera;
+
+		pthread_create(&hilo1, NULL, calculate, (void *)args1);
+		pthread_create(&hilo2, NULL, calculate, (void *)args2);
+
+		pthread_join(hilo1, NULL);
+		pthread_join(hilo2, NULL);
 		Y_avgs[it] = Y_avgs[it] / p;
 	}
 }
 
 
-void fill_vectors(int i, int max_iters, int p, double **X, double **Y, double **Y_avgs, double *a){
+
+
+//-------------------------------------------------------------------
+void fill_vectors(){
 
 	// initializing data
-	*X = (double *)malloc(sizeof(double) * p);
-	*Y = (double *)malloc(sizeof(double) * p);
-	*Y_avgs = (double *)malloc(sizeof(double) * max_iters);
+	X = (double *)malloc(sizeof(double) * p);
+	Y = (double *)malloc(sizeof(double) * p);
+	Y_avgs = (double *)malloc(sizeof(double) * max_iters);
 
 	for (i = 0; i < p; i++)
 	{
-		(*X)[i] = (double)rand() / RAND_MAX;
-		(*Y)[i] = (double)rand() / RAND_MAX;
+		(X)[i] = (double)rand() / RAND_MAX;
+		(Y)[i] = (double)rand() / RAND_MAX;
 	}
 	for (i = 0; i < max_iters; i++)
 	{
 
-		(*Y_avgs)[i] = 0.0;
+		(Y_avgs)[i] = 0.0;
 	}
 
-	*a = (double)rand() / RAND_MAX;	
+	a = (double)rand() / RAND_MAX;	
 }

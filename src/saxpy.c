@@ -34,30 +34,24 @@ double *Y_avgs;
 int i, it;
 
 
-//-------------------------------------------------------------------
+
+
 struct ThreadArgs {
-    bool esPrimeraParte; // Para indicar si es la primera parte de X y Y
+    int pos; // Para indicar si es la primera parte de X y Y
     int limit;   // Indica hasta donde parar de hacer la operacion
 };
 
 
 
 
-//-------------------------------------------------------------------
+
+
 void calculate(void *arg) {
     struct ThreadArgs *args = (struct ThreadArgs *)arg;
-
 	if(p >= 2){
-
-		if(args->esPrimeraParte == true){
-			i = 0;
-		}else{
-			i = args->limit +1;
-			args->limit = p-1;
-		}
-
-		for (i = i; i <= args->limit; i++)
-		{
+		int lim = args->limit;
+		int i = args->pos;
+		for (i = i; i < lim; i++){
 			Y[i] = Y[i] + a * X[i];
 			Y_avgs[it] += Y[i];
 		}
@@ -69,10 +63,78 @@ void calculate(void *arg) {
 
 
 
+
+
+void funtion_saxpy(){
+	// SAXPY iterative SAXPY mfunction
+	pthread_t ths[n_threads];
+	int div = 1; // Si el numero de hilos es igual o superior al tamaño del vector cada hilo hará una pos del vector
+	int res = 0;
+	if(p>n_threads){ //En caso contrario se dividen el trabajo equitativamente
+		div = floor(p/n_threads);
+		res = p%n_threads; //Valor que se agrega al ultimo hilo por si queda faltando alguno
+	}else{
+		n_threads = p;
+	}
+	for (it = 0; it< max_iters; it++){
+		
+		for(int jt = 0; jt<n_threads; jt++){
+			struct ThreadArgs *argst = malloc(sizeof(struct ThreadArgs));
+			argst->pos = jt*div; //Almacena posicion actual y limite de cada hilo
+			argst->limit = div + argst->pos;
+			if(jt+1 == n_threads){
+				argst->limit += res; // Si quedan faltando valores, el ultimo hilo los gestiona
+			}
+			if(argst->pos < p){ //Si hay mas hilos que tamaño de vector, no se ejecutan los hilos sobrantes
+				printf("pos = %d, limite = %d, res = %d\n", argst->pos, argst->limit, res);
+				pthread_create(&ths[jt], NULL, calculate, (void *)argst);
+			}
+
+		}
+		for(int jt = 0; jt<n_threads; jt++){ //Termina el trabajo de cada hilo
+			pthread_join(ths[jt], NULL);
+		}
+		Y_avgs[it] = Y_avgs[it] / p; // Almacena los promedios de Y
+	}
+
+}
+
+
+
+
+
+
+void fill_vectors(){
+
+	// initializing data
+	X = (double *)malloc(sizeof(double) * p);
+	Y = (double *)malloc(sizeof(double) * p);
+	Y_avgs = (double *)malloc(sizeof(double) * max_iters);
+
+	for (i = 0; i < p; i++)
+	{
+		(X)[i] = (double)rand() / RAND_MAX;
+		(Y)[i] = (double)rand() / RAND_MAX;
+	}
+	for (i = 0; i < max_iters; i++)
+	{
+
+		(Y_avgs)[i] = 0.0;
+	}
+
+	a = (double)rand() / RAND_MAX;	
+}
+
+
+
+
 //-------------------------------------------------------------------
+
+
+
+
 int main(int argc, char *argv[])
 {
-
 	// Variables to get execution time
 	struct timeval t_start, t_end;
 	double exec_time;
@@ -118,15 +180,11 @@ int main(int argc, char *argv[])
 	printf("\np = %d, seed = %d, n_threads = %d, max_iters = %d\n",
 		   p, seed, n_threads, max_iters);
 
-	// initializing data
-	fill_vectors();
-
-
-#ifdef DEBUG
 	
+	fill_vectors(); // initializing data
+
 	print_vector(); // Imprime todos los valores
 
-#endif
 	/*
 	 *	Function to parallelize
 	 */
@@ -134,9 +192,9 @@ int main(int argc, char *argv[])
 	funtion_saxpy();
 	gettimeofday(&t_end, NULL);
 
-#ifdef DEBUG
 	print_y_final(); // Imprime el valor final de Y_avgs
-#endif
+
+
 
 	// Computing execution time
 	exec_time = (t_end.tv_sec - t_start.tv_sec) * 1000.0;	 // sec to ms
@@ -146,6 +204,10 @@ int main(int argc, char *argv[])
 	printf("Last 3 values of Y_avgs: %f, %f, %f \n", Y_avgs[max_iters - 3], Y_avgs[max_iters - 2], Y_avgs[max_iters - 1]);
 	return 0;
 }
+
+
+
+
 //-------------------------------------------------------------------
 
 
@@ -173,7 +235,8 @@ void print_vector()
 
 
 
-//-------------------------------------------------------------------
+
+
 void print_y_final(){
 	printf("RES: final vector Y= [ ");
 	for (i = 0; i < p - 1; i++)
@@ -186,54 +249,8 @@ void print_y_final(){
 
 
 
-//-------------------------------------------------------------------
-void funtion_saxpy(){
-	// SAXPY iterative SAXPY mfunction
-	bool esPrimeraParte = false;
-	pthread_t hilo1, hilo2;
-
-	for (it = 0; it < max_iters; it++)
-	{
-		int division_entera = floor(p/2); // Mitad de los arreglos X y Y
-
-        struct ThreadArgs *args1 = malloc(sizeof(struct ThreadArgs));
-        args1->esPrimeraParte = true;
-        args1->limit = division_entera;
-
-        struct ThreadArgs *args2 = malloc(sizeof(struct ThreadArgs));
-        args2->esPrimeraParte = false;
-        args2->limit = division_entera;
-
-		pthread_create(&hilo1, NULL, calculate, (void *)args1);
-		pthread_create(&hilo2, NULL, calculate, (void *)args2);
-
-		pthread_join(hilo1, NULL);
-		pthread_join(hilo2, NULL);
-		Y_avgs[it] = Y_avgs[it] / p;
-	}
-}
 
 
 
 
-//-------------------------------------------------------------------
-void fill_vectors(){
 
-	// initializing data
-	X = (double *)malloc(sizeof(double) * p);
-	Y = (double *)malloc(sizeof(double) * p);
-	Y_avgs = (double *)malloc(sizeof(double) * max_iters);
-
-	for (i = 0; i < p; i++)
-	{
-		(X)[i] = (double)rand() / RAND_MAX;
-		(Y)[i] = (double)rand() / RAND_MAX;
-	}
-	for (i = 0; i < max_iters; i++)
-	{
-
-		(Y_avgs)[i] = 0.0;
-	}
-
-	a = (double)rand() / RAND_MAX;	
-}
